@@ -1,0 +1,8 @@
+name: ServerWorldBackup
+main: ml.chromaryu.serverworldbackup.main
+version: 0.1
+author: Chromaryu
+load: STARTUP
+commands:
+  swb:
+    description: ServerWorldBackup main command
