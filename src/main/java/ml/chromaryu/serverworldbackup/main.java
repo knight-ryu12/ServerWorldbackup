@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 public class main extends JavaPlugin {
     long initTime;
     File config;
+    public static String backupdir;
     public static String prefix;
     public static Logger logger;
     public static File dir;
@@ -23,9 +24,10 @@ public class main extends JavaPlugin {
         dir = getDataFolder();
         getLogger().info(dir.toString() + " " + dir.toPath());
         createConfig();
+        backupdir = getConfig().getString("BackupDirectory");
         prefix = ChatColor.translateAlternateColorCodes('&',getConfig().getString("Pluginprefix"));
         config = new File(getDataFolder(),"config.yml");
-        initTime = initTime - System.currentTimeMillis();
+        initTime = System.currentTimeMillis() - initTime;
         getLogger().info("Initialization was completed in" + initTime +"ms.");
     }
 

@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
 
+import static ml.chromaryu.serverworldbackup.command.swb_help.help;
+
 
 /**
  * Created by ryuniverse on 2016/09/06.
@@ -28,26 +30,27 @@ public class swb implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if(commandSender instanceof Player) {
+            List<Path> fileList = new ArrayList<>();
+            FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    fileList.add(file);
+                    return FileVisitResult.CONTINUE;
+                }
+            };
             Player p = (Player) commandSender;
             Logger logger = Bukkit.getLogger();
             if(args.length >= 1) {
                 if (args[0].equalsIgnoreCase("saveworld")) {
                     long initTime = System.currentTimeMillis();
                     p.sendMessage(main.prefix + "Saving the current world!");
-                    String filename = main.dir + "/" + p.getWorld().getName() + " " +new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(Calendar.getInstance().getTime()) + ".tar.gz";
-                    List<Path> fileList = new ArrayList<>();
-                    FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
-                        @Override
-                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                            fileList.add(file);
-                            return FileVisitResult.CONTINUE;
-                        }
-                    };
+                    String filename = main.dir + "/" +main.backupdir +"/"+ p.getWorld().getName() + " " +new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(Calendar.getInstance().getTime()) + ".tar.gz";
                     try {
                         Files.walkFileTree(new File(p.getWorld().getWorldFolder().getPath().substring(2)).toPath(), visitor);
                         compressTarGz.compresstargz(fileList, filename);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        return false;
                     }
                     initTime = System.currentTimeMillis() - initTime;
                     p.sendMessage(main.prefix + "Done in " + initTime + "ms");
@@ -55,13 +58,28 @@ public class swb implements CommandExecutor {
                 }
                 if (args[0].equalsIgnoreCase("saveallworld")) {
                     // TODO: 16/09/11 Impliment "get all World"
+                    String datepattern = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ", Locale.US).format(Calendar.getInstance().getTime());
+                    p.sendMessage(main.prefix + "Saving the all world! Server may lags.");
+                    long initTime = System.currentTimeMillis();
+                    try{
+                        for(World w : Bukkit.getWorlds()) {
+                            String filename = main.dir + "/" + main.backupdir + "/" + w.getName() + " " + datepattern + ".tar.gz";
+                            Files.walkFileTree(new File(w.getWorldFolder().getPath().substring(2)).toPath(),visitor);
+                            compressTarGz.compresstargz(fileList,filename);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                    initTime = System.currentTimeMillis() - initTime;
+                    p.sendMessage(main.prefix + "Done in " + initTime + "ms");
                     return true;
                 }
                 if (args[0].equalsIgnoreCase("test")) {
                     p.sendMessage(p.spigot().getLocale());
                 }
             } else {
-                p.sendMessage(main.prefix + "");
+                help(p);
                 return true;
             }
         } else {
