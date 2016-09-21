@@ -12,7 +12,8 @@ import java.util.logging.Logger;
  */
 public class main extends JavaPlugin {
     long initTime;
-    File config;
+
+    public static File config;
     public static String backupdir;
     public static String prefix;
     public static Logger logger;
@@ -25,8 +26,12 @@ public class main extends JavaPlugin {
         getLogger().info(dir.toString() + " " + dir.toPath());
         createConfig();
         backupdir = getConfig().getString("BackupDirectory");
+        File file = new File(getDataFolder()+"/" + backupdir);
+        if(file.mkdir()) {
+            getLogger().info("Directory has been made");
+        }
         prefix = ChatColor.translateAlternateColorCodes('&',getConfig().getString("Pluginprefix"));
-        config = new File(getDataFolder(),"config.yml");
+        //config = new File(getDataFolder(),"config.yml");
         initTime = System.currentTimeMillis() - initTime;
         getLogger().info("Initialization was completed in" + initTime +"ms.");
     }
@@ -39,8 +44,8 @@ public class main extends JavaPlugin {
 
     private void createConfig() {
         try {
-            File file = new File(getDataFolder(), "config.yml");
-            if (!file.exists()) {
+            config = new File(getDataFolder(), "config.yml");
+            if (!config.exists()) {
                 getLogger().info("Config.yml not found, creating!");
                 saveDefaultConfig();
             } else {
